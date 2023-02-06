@@ -144,11 +144,15 @@ m.mount(document.body, {
       let cluepool = similar.map((words, i)=>words.filter((word,wi) => {
         gi = guesses.map(x => x[i].word).findIndex(g => g == word)
         return gi == -1 || gi > wi
-      }))
+      })
+      )
       let now = new Date()
       let next = [24-now.getHours()-1, 60-now.getMinutes(), 60-now.getSeconds()]
       if (now.getDate() != today.getDate()) window.location.reload();
-      clues = cluepool.map(x => x.slice(0,4).reverse())
+      clues = cluepool.map((x,i) => x.slice(0,4).reverse().map((word, wi)=> {
+        gi = guesses.map(x => x[i]).findIndex(g => g.class == "green")
+        return (gi > -1 && wi >= (gi+1)) ? "" : word
+      }))
       return m('div',{class:"flex flex-col h-full w-screen"}, [
         m('div', {class:"bg-gray-900 p-4 w-full font-bold text-2xl text-gray-100 flex justify-between"}, [
           m('div', {class:"grow"}),
@@ -160,7 +164,7 @@ m.mount(document.body, {
         m('div',{class:"flex grow overflow-x-auto text-center justify-center w-full"}, hp.map((w,i)=>m('div', { 
           class: "grow basis-0 h-full flex flex-col justify-center"
         }, [
-          m('div',{class: "flex flex-col justify-end end grow basis-0"}, clues[i].slice(0,n).map(x => m("div",{ class: "m-1 text-2xl text-gray-100"}, x))),
+          m('div',{class: "flex flex-col justify-end end grow basis-0"}, clues[i].slice(0,n).map(x => m("div",{ class: "h-9 m-1 text-2xl text-gray-100"}, x))),
           m("div", {id: i, 
             class: ["w-full"].join(' '),
             onclick: ()=>{if (!success[i] && n < 5) focus=i}
@@ -170,7 +174,7 @@ m.mount(document.body, {
               ? "bg-green-600 border-green-600 text-gray-100" 
               : (n > 4 || success.every(x => x)) 
                 ? 'bg-gray-500 border-gray-500 text-gray-900' 
-                : "bg-white text-black",
+                : "bg-white text-black cursor-pointer",
             focus == i ? "border-sky-600" : "",
             i ? 'ml-2 mr-4' : 'mr-2 ml-4'
           ].join(' ')}, input[i])),
