@@ -149,8 +149,14 @@ m.mount(document.body, {
       let next = [24-now.getHours()-1, 60-now.getMinutes(), 60-now.getSeconds()]
       if (now.getDate() != today.getDate()) window.location.reload();
       clues = cluepool.map(x => x.slice(0,4).reverse())
-      return m('div', {class:"max-w-md flex flex-col m-auto justify-center h-full text-center"}, [
-        m('div', {class:"bg-gray-900 p-1 w-full font-bold text-gray-100"}, "HINK PINK"),
+      return m('div',{class:"flex flex-col h-full w-screen"}, [
+        m('div', {class:"bg-gray-900 p-4 w-full font-bold text-2xl text-gray-100 flex justify-between"}, [
+          m('div', {class:"grow"}),
+          m('div', {class:"grow text-center cursor-pointer", onclick:()=>window.location.reload()}, "HINK PINK"),
+          m('div', {class:"grow basis-0 text-right"}, m('div',{class:"inline cursor-pointer rounded-full px-2.5 py-0.5 mx-2 border-2 border-white"},"?"))
+        ]),
+      m('div',{class:"grow"}, m('div', {class:"max-w-md m-auto flex flex-col justify-center h-full text-center"}, [
+
         m('div',{class:"flex grow overflow-x-auto text-center justify-center w-full"}, hp.map((w,i)=>m('div', { 
           class: "grow basis-0 h-full flex flex-col justify-center"
         }, [
@@ -159,7 +165,7 @@ m.mount(document.body, {
             class: ["w-full"].join(' '),
             onclick: ()=>{if (!success[i] && n < 5) focus=i}
           }, m('div',{class: [
-            "border-4 font-bold text-3xl my-1 rounded font-bold uppercase h-10",
+            "border-4 font-bold text-3xl my-1 rounded font-bold uppercase h-11",
             success[i] 
               ? "bg-green-600 border-green-600 text-gray-100" 
               : (n > 4 || success.every(x => x)) 
@@ -234,7 +240,8 @@ m.mount(document.body, {
               : l)
           }))))
         )
-      ])
+      ]))
+    ])
   }
 })
 main = async() => {
