@@ -156,7 +156,7 @@ m.mount(document.body, {
       })
       )
       let now = new Date()
-      let next = [24-now.getHours()-1, 60-now.getMinutes(), 60-now.getSeconds()]
+      let next = [23-now.getHours(), 59-now.getMinutes(), 59-now.getSeconds()]
       if (now.getDate() != today.getDate()) window.location.reload();
       clues = cluepool.map((x,i) => x.slice(0,4).reverse().map((word, wi)=> {
         gi = guesses.map(x => x[i]).findIndex(g => g.class == "green")
@@ -231,7 +231,7 @@ m.mount(document.body, {
               }
             }, copied ? "COPIED":"SHARE")),
             m('div', {class: "text-white my-2 text-lg font-bold grow flex flex-col justify-center"}, next.some(x => x) 
-            ? `Next in ${next.map((x,i) => i ? x.toString().padStart(2,'0'):x).join(":")}`
+            ? m('div', [`Next in`, m('span',{class:"font-mono ml-1.5"}, next.map((x,i) => i ? x.toString().padStart(2,'0'):x).join(":"))])
             : "Refresh"
             ),
           ]
