@@ -23,34 +23,42 @@ api = async(...params) => {
     && x.tags 
     && Number(x.tags.find(x => x.slice(0,2)=="f:").slice(2)) >= 1
     && (["n","N","v","adj","adv","results_type:primary_rel"].some(p => x.tags.includes(p)))
-  ).map(word => ({...word, root: word.tags?.find(x => x.slice(0,5) == "pron:").trim().split(" ").slice(1).reverse()}))
+  ).map(word => ({...word, root: word.tags?.find(x => x.slice(0,5) == "pron:").trim().slice(5).split(" ").reverse()}))
 }
 var letters = "bcdefghjlmnoprstvw"
-var n = 0
 getWord = async()=>{
   if (!words.length) {
     let l = letters[Math.floor(random()*letters.length)]
     let len = Math.floor(random()*4)+3
     words = await api(["sp", l+Array.from(Array(len)).map(x => "?").join("")])
   }
-  words = words.filter(x => x.score > 1000 && x.numSyllables < 3)
+  words = words.filter(x => x.score > 1000 
+    && x.numSyllables < 3 
+    //&& Number(x.tags.find(x => x.slice(0,2)=="f:").slice(2)) >= 10
+    && !(x.root[0] == "NG" && x.numSyllables > 1)
+    )
   i = Math.floor(random()*words.length)
   return words[i]
 }
-
+var attempts = 0
 getRhyme = async(word)=>{
   console.log("rhyme", word)
-  n++
-  if (n > 1) return
+  attempts++
+  if (attempts > 4) return
   let rhymes = await api(["rel_rhy", word.word])
   rhymes = rhymes.filter(r => r.numSyllables == word.numSyllables)
-  filtered = rhymes.filter(r => r.score > 1000
-    && (Math.abs(r.word.length - word.word.length) < 4)
-    && !r.tags.includes("prop")
-    && r.root
-      .slice(0,r.root.findIndex(x => x.length == 3)+(r.numSyllables-1))
-      .every((x,i) => x == word.root[i])
-  )
+  filtered = rhymes.filter(r => {
+    let syl = r.root.findIndex(x => x.length == 3)
+    if (r.numSyllables > 1) {
+      syl = r.root.findIndex((x,i) => i > syl && x.length == 3)
+    }
+    return r.score > 1000
+      && (Math.abs(r.word.length - word.word.length) < 4)
+      && !r.tags.includes("prop")
+      && r.root
+        .slice(0,syl+1)
+        .every((x,i) => x == word.root[i])
+  })
   i = Math.floor(random()*filtered.length)
   return filtered[i]
 }
@@ -120,7 +128,8 @@ submit = () => {
 
 end = () => {
   focus = 3
-  localStorage.setItem("state", JSON.stringify({hp, similar: clues.map(x => x.slice(0,n).reverse()), n, guesses, success}))
+  localStorage.setItem("state", JSON.stringify({hp, similar: clues.map(x => x.slice(0,n).reverse()), n, guesses, success, seed}))
+  setInterval(()=>m.redraw(),1000)
 }
 
 document.addEventListener("keydown", (e)=>{
@@ -250,7 +259,7 @@ m.mount(document.body, {
 })
 main = async() => {
   let store = JSON.parse(localStorage.getItem("state") || "{}")
-  if (store.hp) {
+  if (store.hp && store.seed == seed) {
     hp = store.hp
     similar = store.similar
     n = (store.n || 1)
@@ -261,7 +270,7 @@ main = async() => {
   } else {
     hp = await getHP()
     similar = [await getClues(hp[0]), await getClues(hp[1])]
-    localStorage.setItem("state", JSON.stringify({hp, similar}))
+    localStorage.setItem("state", JSON.stringify({hp, similar, seed}))
   }
   if (n > 4 || success.every(x => x)) {
     setInterval(()=>m.redraw(),1000)
