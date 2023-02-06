@@ -1,5 +1,5 @@
 var today = new Date()
-var seed = (new URLSearchParams(window.location.search)).get("s") || today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+var seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
 random = aleaPRNG(seed)
 
 var state = {
@@ -14,6 +14,7 @@ var state = {
   success: [false, false],
   copied: false,
   help: false,
+  helpIndex: 0,
 }
 
 api = async (...params) => {
@@ -163,7 +164,10 @@ var Nav = {
       m('div', { class: "grow" }),
       m('div', { class: "grow text-center cursor-pointer", onclick: () => window.location.reload() }, "HINK PINK"),
       m('div', { class: "grow basis-0 text-right" }, m('div', {
-        onclick: () => state.help = !state.help,
+        onclick: () => {
+          state.help = !state.help
+          state.helpIndex = 0
+        },
         class: "inline cursor-pointer rounded-full px-2.5 py-0.5 mx-2 border-2 border-white"
       }, "?"))
     ])
@@ -171,12 +175,12 @@ var Nav = {
 }
 
 var Columns = {
-  view: function ({attrs: { clues, n, hp, success, guesses, input, focus}}) {
-    return hp.map((w, i) => m('div', {
+  view: function ({attrs: { clues, n, success, guesses, input, focus}}) {
+    return [0,1].map(i => m('div', {
       class: "grow basis-0 h-full flex flex-col justify-center"
     }, [
       // Clues
-      m('div', { class: "flex flex-col justify-end end grow basis-0 text-center" }, clues[i].slice(0, n).map(x => m("div", { class: "h-9 m-1 text-2xl text-gray-100" }, x))),
+      m('div', { class: "flex flex-col justify-end end grow basis-0 text-center" }, clues[i]?.slice(0, n).map(x => m("div", { class: "h-9 m-1 text-2xl text-gray-100" }, x))),
       // Input
       m("div", {
         class: "w-full text-center",
@@ -269,27 +273,60 @@ var Keyboard = {
   }
 }
 
+let example = [
+  {
+    text: `Given the clue "cloud friend", you might guess the rhyme is SKY GUY.`,
+    clues: [["cloud","mist"],["friend", "puppy"]],
+    n: 1,
+    success: [false, false],
+    guesses: [],
+    input: ["SKY", "GUY"]
+  },
+  {
+    text: `We were close with SKY, but GUY was way off. The new clue, "mist puppy" might make things more clear`,
+    clues: [["cloud","mist"],["friend", "puppy"]],
+    n: 2,
+    success: [false, false],
+    guesses: [[{word: "sky", class:"yellow"}, {word: "guy"}]],
+    input: []
+  },
+  {
+    text: `Let's try FOG DOG`,
+    clues: [["cloud","mist"],["friend", "puppy"]],
+    n: 2,
+    success: [false, false],
+    guesses: [[{word: "sky", class:"yellow"}, {word: "guy"}]],
+    input: ["FOG", "DOG"]
+  },
+  {
+    text: `Got it!`,
+    clues: [["cloud","mist"],["friend", "puppy"]],
+    n: 3,
+    success: [true, true],
+    guesses: [[{word: "sky", class:"yellow"}, {word: "guy"}]],
+    input: ["FOG", "DOG"]
+  }
+]
+
 var Help = {
   view: function() {
-    return m('div', { class: "absolute top-16 w-full flex justify-center" }, m('div', { class: "bg-slate-700 rounded-lg m-4 px-6 py-2 border-2 border-slate-200 text-white" }, [
+    return m('div', { class: "absolute top-16 w-full flex justify-center" }, m('div', { class: "max-w-md bg-slate-700 rounded-lg m-4 px-6 py-2 border-2 border-slate-200 text-white" }, [
       m('div', { class: "text-lg font-bold mb-2" }, "How to play"),
       m('ul', { class: "list-disc" }, [
-        "You have 4 chances to guess the rhyme.",
+        "Guess the rhyme in 4 tries.",
         "You are given a clue for each word in the rhyme. Listed at the top.",
         "Incorrect guesses give you more clues.",
         ["If your guess is related to the rhyme word, it will be marked in ", m('span', { class: "bg-yellow-600 border-yellow-600 text-gray-900 py-0.5 px-1 rounded font-bold" }, "YELLOW")],
         ["Correct answers are marked in ", m('span', { class: "bg-green-600 border-green-600 text-gray-100 py-0.5 px-1 rounded font-bold" }, "GREEN")],
       ].map(x => m('li', { class: "ml-4 my-1" }, x))),
-      m('div', { class: "text-lg font-bold mt-2" }, "Example"),
-      m('div', {class:"h-24 flex items-center"}, m('div',{class:"w-full"}, m('div', {class:"scale-50 h-1/2 flex justify-center"}, m(Columns, {
-        clues: [["canine", "hound"],["cloud","mist"]],
-        n: 2,
-        hp: ["dog", "fog"],
-        success: [true, true],
-        guesses: [[{word: "pet", class:"yellow"},{word: "net"}]],
-        input: ["DOG", "FOG"]
-      })))),
-      m('div', { class: "mt-6" }, ["Words are sourced from the ", m('a', { class: "underline text-sky-500", target: "_blank", href: "https://www.datamuse.com/api/" }, "Datamuse API"), "."])
+      m('div', { class: "text-lg font-bold mt-6 mb-2 text-center" }, "Example"),
+      m('div', {class:"text-center h-16 mb-4 flex flex-col justify-center"}, example[state.helpIndex].text),
+      m('div', {class:"h-24 flex items-center my-2"}, m('div',{class:"w-full"}, m('div', {class:" border-4 border-gray-1s00 rounded-lg py-2 px-4 scale-50 h-1/2 flex justify-center"}, m(Columns, example[state.helpIndex])))),
+      !(state.helpIndex < (example.length-1)) || m('div', {class:"text-center mt-4"}, m('button', {
+        class:"bg-sky-600 font-bold px-2 py-1 rounded-lg",
+        onclick: () => state.helpIndex += 1,
+      }, "NEXT")),
+      m('div', { class: "mt-4" }, ["Words are sourced from the ", m('a', { class: "underline text-sky-500", target: "_blank", href: "https://www.datamuse.com/api/" }, "Datamuse API"), "."])
     ]))
   }
 }
@@ -308,7 +345,7 @@ var App = {
     return m('div', { class: "flex flex-col h-full w-screen" }, [
       m(Nav),
       m('div', { class: "grow", onclick:()=>(!state.help || (state.help = !state.help))}, m('div', { class: "max-w-md m-auto flex flex-col justify-center h-full text-center" }, [
-        m('div', { class: "flex grow overflow-x-auto text-center justify-center w-full" }, m(Columns, {clues: state.clues, n: state.n, hp: state.hp, success: state.success, guesses:state.guesses, input:state.input, focus:state.focus})),
+        m('div', { class: "flex grow overflow-x-auto text-center justify-center w-full" }, m(Columns, {clues: state.clues, n: state.n, success: state.success, guesses:state.guesses, input:state.input, focus:state.focus})),
         m('div', { class: "w-full my-4 h-40 flex flex-col" }, 
           !state.hp.length || ((state.n > 4 || state.success.every(x => x))
             ? m(Result)
