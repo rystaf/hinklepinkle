@@ -12,6 +12,7 @@ var words = []
 var clues = []
 var success = [false, false]
 let copied = false
+var help = false
 
 api = async(...params) => {
   //console.log(param,value)
@@ -79,6 +80,7 @@ getHP = async() => {
     return [word, rhyme].sort((a,b) => b.tags.includes("adj") - a.tags.includes("adj")).map(x => x?.word)
 }
 keyPress = letter => {
+  if (help) return help = false
   if (n > 4 || success.every(x =>x)) return
   if (letter == ">") {
     if (focus == 1 || focus == 0 && success[1]) submit()
@@ -166,7 +168,7 @@ m.mount(document.body, {
         m('div', {class:"bg-gray-900 p-4 w-full font-bold text-2xl text-gray-100 flex justify-between"}, [
           m('div', {class:"grow"}),
           m('div', {class:"grow text-center cursor-pointer", onclick:()=>window.location.reload()}, "HINK PINK"),
-          m('div', {class:"grow basis-0 text-right"}, m('div',{class:"inline cursor-pointer rounded-full px-2.5 py-0.5 mx-2 border-2 border-white"},"?"))
+          m('div', {class:"grow basis-0 text-right"}, m('div',{onclick:()=>help=!help, class:"inline cursor-pointer rounded-full px-2.5 py-0.5 mx-2 border-2 border-white"},"?"))
         ]),
       m('div',{class:"grow"}, m('div', {class:"max-w-md m-auto flex flex-col justify-center h-full text-center"}, [
 
@@ -253,6 +255,17 @@ m.mount(document.body, {
               : l)
           }))))
         )
+      ])),
+      !help || m('div', {class:"absolute top-32 w-full flex justify-center"}, m('div', {class:"bg-slate-700 rounded-lg m-4 p-6 border-2 border-slate-200 text-white"}, [
+        m('div',{class:"text-lg font-bold mb-2"}, "How to play"),
+        m('ul', {class:"list-disc"}, [
+          "You have 4 chances to guess the rhyme.",
+          "You are given a clue for each word in the rhyme.",
+          "Incorrect guesses give you more clues.",
+          ["If your guess is related to the rhyme word, it will be marked in ", m('span', { class:"bg-yellow-600 border-yellow-600 text-gray-900 py-1 px-2 rounded font-bold"}, "YELLOW")],
+          ["Correct answers are marked in ", m('span', {class:"bg-green-600 border-green-600 text-gray-100 py-1 px-2 rounded font-bold"}, "GREEN")],
+        ].map(x => m('li', {class:"ml-4 my-1.5"},x))),
+        m('div', {class:"mt-8"}, ["Words are sourced from the ", m('a',{class:"underline text-sky-500", target:"_blank", href:"https://www.datamuse.com/api/"}, "Datamuse API"),"."])
       ]))
     ])
   }
