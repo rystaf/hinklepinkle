@@ -316,7 +316,7 @@ var Help = {
       id: "overlay",
       class: "absolute h-full w-full px-4 overflow-y-auto m-auto",
       onclick: (e)=> {if (e.target.id == "overlay") { state.help = false }},
-   }, m('div', { class: "max-w-md m-auto my-16 bg-slate-700 rounded-lg m-4 px-6 py-2 border-2 border-slate-200 text-white" }, [
+   }, m('div', { class: "max-w-md m-auto my-16 bg-slate-700 rounded-lg px-6 py-2 border-2 border-slate-200 text-white" }, [
       m('div', { class: "text-lg font-bold mb-2" }, "How to play"),
       m('ul', { class: "list-disc" }, [
         "Guess the rhyme in 4 tries.",
