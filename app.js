@@ -311,7 +311,11 @@ let example = [
 
 var Help = {
   view: function() {
-    return m('div', { class: "absolute top-16 w-full flex justify-center" }, m('div', { class: "max-w-md bg-slate-700 rounded-lg m-4 px-6 py-2 border-2 border-slate-200 text-white" }, [
+    return m('div', {
+      id: "overlay",
+      class: "absolute h-full w-full px-4 overflow-y-auto m-auto",
+      onclick: (e)=> {if (e.target.id == "overlay") { state.help = false }},
+   }, m('div', { class: "max-w-md m-auto my-16 bg-slate-700 rounded-lg m-4 px-6 py-2 border-2 border-slate-200 text-white" }, [
       m('div', { class: "text-lg font-bold mb-2" }, "How to play"),
       m('ul', { class: "list-disc" }, [
         "Guess the rhyme in 4 tries.",
