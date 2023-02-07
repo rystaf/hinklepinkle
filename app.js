@@ -31,14 +31,14 @@ api = async (...params) => {
 }
 
 var letters = "bcdfghjlmnprstw"
-getWord = async () => {
+getWord = async (syl) => {
   if (!state.words.length || attempts > 1) {
     let l = letters[Math.floor(random() * letters.length)]
-    let len = Math.floor(random() * 5) + 3
+    let len = Math.floor(random() * (syl ? 2 : 5)) + 3
     state.words = await api(["sp", l + Array.from(Array(len)).map(x => "?").join("")])
   }
   state.words = state.words.filter(x => x.score > 1000
-    && x.numSyllables < 3
+    && (syl ? (x.numSyllables == syl) : (x.numSyllables < 3))
     && Number(x.tags.find(x => x.slice(0,2)=="f:").slice(2)) >= 5
     && !(x.root[0] == "NG" && x.numSyllables > 1)
   )
@@ -76,8 +76,9 @@ getClues = async (word) => {
 
 getHP = async () => {
   attempts++
-  let word = await getWord()
+  let word = await getWord(attempts > 3 ? 1 : 0)
   let rhyme = await getRhyme(word)
+  //console.log("try", attempts)
   //console.log(word, rhyme)
   if (!rhyme && attempts < 6) {
     //console.log("no rhyme", attempts)
