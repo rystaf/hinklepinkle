@@ -180,11 +180,12 @@ var Columns = {
       class: "grow basis-0 h-full flex flex-col justify-center"
     }, [
       // Clues
-      m('div', { class: "flex flex-col justify-end end grow basis-0 text-center" }, clues[i]?.slice(0, n).map(x => m("div", { class: "h-9 m-1 text-2xl text-gray-100" }, x))),
+      m('div', { class: "flex flex-col justify-end end grow basis-0 text-center" }, 
+        clues[i]?.slice(0, n).map(x => m("div", { class: "h-7 my-1 text-2xl text-gray-100" }, x))),
       // Input
       m("div", {
-        class: "w-full text-center",
-        onclick: () => { if (!success[i] && n < 5 && !state.help ) state.focus = i }
+        class: "w-full text-center mt-2",
+        onclick: () => { if (!success[i] && n < 5 && !state.help) state.focus = i }
       }, m('div', {
         class: [
           "border-4 font-bold text-3xl my-1 rounded font-bold uppercase h-11",
@@ -219,8 +220,8 @@ var Result = {
     let next = [23 - now.getHours(), 59 - now.getMinutes(), 59 - now.getSeconds()]
     if (now.getDate() != today.getDate()) window.location.reload();
     return [
-      !(navigator?.share || navigator?.clipboard) || m('div', m('button', {
-        class: "bg-sky-600 px-4 py-2 text-2xl rounded-xl font-bold text-white",
+      !( navigator?.share || navigator?.clipboard) || m('div', m('button', {
+        class: "bg-sky-600 px-4 py-2 mb-4 text-2xl rounded-xl font-bold text-white",
         onclick: () => {
           let squares = [
             ...state.guesses.map(g => g.map(x => x.class)),
@@ -242,7 +243,7 @@ var Result = {
           }
         }
       }, state.copied ? "COPIED" : "SHARE")),
-      m('div', { class: "text-white my-2 text-lg font-bold grow flex flex-col justify-center" }, next.some(x => x)
+      m('div', { class: "text-white text-lg font-bold grow flex flex-col justify-center" }, next.some(x => x)
         ? m('div', [`Next in`, m('span', { class: "font-mono ml-1.5" }, next.map((x, i) => i ? x.toString().padStart(2, '0') : x).join(":"))])
         : "Refresh"
       ),
@@ -253,7 +254,7 @@ var Result = {
 var Keyboard = {
   view: function() {
     return ["QWERTYUIOP", "ASDFGHJKL", ">ZXCVBNM<"].map((row, ri) => m('div', {
-      class: "w-full inline-flex justify-center"
+      class: "w-full inline-flex justify-center touch-manipulation"
     }, row.split('').map((l, i) => {
       let arrows = ri == 2 && (i == 0 || i == (row.length - 1))
       return m('button', {
@@ -261,7 +262,7 @@ var Keyboard = {
           arrows
             ? "bg-sky-600 w-16 items-center" + (i == 0 ? "" : " text-xl")
             : "py-2.5 px-2.5 text-xl",
-          "m-0.5 rounded bg-gray-500 font-bold text-white font-mono flex justify-center",
+          "m-0.5 rounded bg-gray-500 font-bold text-white font-mono flex justify-center touch-manipulation",
         ].join(' '),
         onclick: () => keyPress(l)
       }, arrows
@@ -344,9 +345,12 @@ var App = {
     }))
     return m('div', { class: "flex flex-col h-full w-screen" }, [
       m(Nav),
-      m('div', { class: "grow", onclick:()=>(!state.help || (state.help = !state.help))}, m('div', { class: "max-w-md m-auto flex flex-col justify-center h-full text-center" }, [
-        m('div', { class: "flex grow overflow-x-auto text-center justify-center w-full" }, m(Columns, {clues: state.clues, n: state.n, success: state.success, guesses:state.guesses, input:state.input, focus:state.focus})),
-        m('div', { class: "w-full my-4 h-40 flex flex-col" }, 
+      m('div', { 
+        class: "grow h-full",
+        onclick:()=>(!state.help || (state.help = !state.help))
+      }, m('div', { class: "max-w-md m-auto flex flex-col justify-center h-full text-center", style:"max-height: 36rem;" }, [
+        m('div', { class: "flex grow overflow-y-auto basis-0 text-center justify-center w-full" }, m(Columns, {clues: state.clues, n: state.n, success: state.success, guesses:state.guesses, input:state.input, focus:state.focus})),
+        m('div', { class: "w-full my-4 flex flex-col" }, 
           !state.hp.length || ((state.n > 4 || state.success.every(x => x))
             ? m(Result)
             : m(Keyboard))
