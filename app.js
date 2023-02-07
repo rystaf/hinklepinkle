@@ -30,16 +30,16 @@ api = async (...params) => {
   ).map(word => ({ ...word, root: word.tags?.find(x => x.slice(0, 5) == "pron:").trim().slice(5).split(" ").reverse() }))
 }
 
-var letters = "bcdefghjlmnoprstvw"
+var letters = "bcdfghjlmnprstw"
 getWord = async () => {
-  if (!state.words.length) {
+  if (!state.words.length || attempts > 1) {
     let l = letters[Math.floor(random() * letters.length)]
-    let len = Math.floor(random() * 4) + 3
+    let len = Math.floor(random() * 5) + 3
     state.words = await api(["sp", l + Array.from(Array(len)).map(x => "?").join("")])
   }
   state.words = state.words.filter(x => x.score > 1000
     && x.numSyllables < 3
-    //&& Number(x.tags.find(x => x.slice(0,2)=="f:").slice(2)) >= 10
+    && Number(x.tags.find(x => x.slice(0,2)=="f:").slice(2)) >= 5
     && !(x.root[0] == "NG" && x.numSyllables > 1)
   )
   let i = Math.floor(random() * state.words.length)
@@ -49,8 +49,6 @@ getWord = async () => {
 var attempts = 0
 getRhyme = async (word) => {
   //console.log("rhyme", word)
-  attempts++
-  if (attempts > 4) return
   let rhymes = await api(["rel_rhy", word.word])
   rhymes = rhymes.filter(r => r.numSyllables == word.numSyllables)
   let filtered = rhymes.filter(r => {
@@ -71,16 +69,18 @@ getRhyme = async (word) => {
 }
 
 getClues = async (word) => {
+  if (!word) return
   let c = await api(["ml", word])
   return c.filter(x => !x.word.includes(word) && !word.includes(x.word)).map(x => x.word)
 }
 
 getHP = async () => {
+  attempts++
   let word = await getWord()
   let rhyme = await getRhyme(word)
   //console.log(word, rhyme)
-  if (!rhyme && state.n < 3) {
-    //console.log("no rhyme")
+  if (!rhyme && attempts < 6) {
+    //console.log("no rhyme", attempts)
     return getHP()
   }
   return [word, rhyme].sort((a, b) => b.tags.includes("adj") - a.tags.includes("adj")).map(x => x?.word)
@@ -379,6 +379,7 @@ m.mount(document.body, App);
     state.focus = ((state.n > 4 || state.success.every(x => x)) ? 3 : 0)
   } else {
     state.hp = await getHP()
+    if (state.hp.some(x => !x)) return
     state.similar = [await getClues(state.hp[0]), await getClues(state.hp[1])]
     localStorage.setItem("state", JSON.stringify({ hp: state.hp, similar: state.similar, seed }))
   }
