@@ -221,7 +221,7 @@ var Result = {
     let next = [23 - now.getHours(), 59 - now.getMinutes(), 59 - now.getSeconds()]
     if (now.getDate() != today.getDate()) window.location.reload();
     return [
-      !( navigator?.share || navigator?.clipboard) || m('div', m('button', {
+      !(navigator?.share || navigator?.clipboard) || m('div', m('button', {
         class: "bg-sky-600 px-4 py-2 mb-4 text-2xl rounded-xl font-bold text-white",
         onclick: () => {
           let squares = [
@@ -233,8 +233,9 @@ var Result = {
             return "⬛"
           }).join(""))
             .reverse()
+          let score = state.success.every(x => x) ? squares.length : "X"
           let path = window.location.pathname
-          let text = `Hink Pink ${squares.length}/4\n${squares.join("\n")}\n${window.location.origin + (path == "/" ? "" : path)}`
+          let text = `Hink Pink ${score}/4\n${squares.join("\n")}\n${window.location.origin + (path == "/" ? "" : path)}`
           console.log(text)
           if (navigator?.share) {
             navigator.share({ text })
