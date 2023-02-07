@@ -233,7 +233,8 @@ var Result = {
             return "⬛"
           }).join(""))
             .reverse()
-          let text = `Hink Pink ${squares.length}/4\n${squares.join("\n")}\n${window.location.origin + window.location.pathname}`
+          let path = window.location.pathname
+          let text = `Hink Pink ${squares.length}/4\n${squares.join("\n")}\n${window.location.origin + (path == "/" ? "" : path)}`
           console.log(text)
           if (navigator?.share) {
             navigator.share({ text })
