@@ -60,6 +60,7 @@ getRhyme = async (word) => {
     }
     return r.score > 1000
       && (Math.abs(r.word.length - word.word.length) < 4)
+      && r.word.length < 9
       && !r.tags.includes("prop")
       && r.root
         .slice(0, syl + 1)
@@ -102,9 +103,8 @@ keyPress = letter => {
     return
   }
   if (["<", ">"].includes(letter)) return
-  if (state.input[state.focus].length == 8 && state.focus == 1) return
+  if (state.input[state.focus].length > 7) return
   state.input[state.focus] += letter
-  if (state.input[state.focus].length == 8 && state.focus == 0) state.focus += 1
 }
 
 submit = () => {
