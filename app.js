@@ -184,7 +184,7 @@ var Columns = {
       // Input
       m("div", {
         class: "w-full text-center",
-        onclick: () => { if (!success[i] && n < 5) focus = i }
+        onclick: () => { if (!success[i] && n < 5 && !state.help ) state.focus = i }
       }, m('div', {
         class: [
           "border-4 font-bold text-3xl my-1 rounded font-bold uppercase h-11",
@@ -322,10 +322,10 @@ var Help = {
       m('div', { class: "text-lg font-bold mt-6 mb-2 text-center" }, "Example"),
       m('div', {class:"text-center h-16 mb-4 flex flex-col justify-center"}, example[state.helpIndex].text),
       m('div', {class:"h-24 flex items-center my-2"}, m('div',{class:"w-full"}, m('div', {class:" border-4 border-gray-1s00 rounded-lg py-2 px-4 scale-50 h-1/2 flex justify-center"}, m(Columns, example[state.helpIndex])))),
-      !(state.helpIndex < (example.length-1)) || m('div', {class:"text-center mt-4"}, m('button', {
+      m('div', {class:"text-center mt-4"}, m('button', {
         class:"bg-sky-600 font-bold px-2 py-1 rounded-lg",
-        onclick: () => state.helpIndex += 1,
-      }, "NEXT")),
+        onclick: () =>  (state.helpIndex < (example.length-1)) ? (state.helpIndex += 1) : (state.help = false),
+      }, (state.helpIndex < (example.length-1)) ? "NEXT" : "CLOSE")),
       m('div', { class: "mt-4" }, ["Words are sourced from the ", m('a', { class: "underline text-sky-500", target: "_blank", href: "https://www.datamuse.com/api/" }, "Datamuse API"), "."])
     ]))
   }
