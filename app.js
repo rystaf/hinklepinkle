@@ -58,6 +58,7 @@ getRhyme = async (word) => {
     }
     return r.score > 1000
       && (Math.abs(r.word.length - word.word.length) < 4)
+      && Number(r.tags.find(x => x.slice(0, 2) == "f:").slice(2)) >= 5
       && r.word.length < 9
       && !r.tags.includes("prop")
       && r.root
