@@ -130,6 +130,7 @@ submit = () => {
   }
   state.guesses.push(guess)
   state.n++
+  localStorage.setItem("state", JSON.stringify({ hp: state.hp, similar: state.similar, n: state.n, guesses: state.guesses, success: state.success, seed }))
   if (state.n > 4) {
     end()
     state.input = state.hp.map(x => x.toUpperCase())
