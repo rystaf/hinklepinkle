@@ -182,8 +182,8 @@ var Columns = {
       class: "grow basis-0 h-full flex flex-col justify-center"
     }, [
       // Clues
-      m('div', { class: "flex flex-col justify-end end grow basis-0 text-center" }, 
-        clues[i]?.slice(0, n).map(x => m("div", { class: "h-7 my-1 text-2xl text-gray-100" }, x))),
+      m('div', { class: "flex flex-col justify-end end grow basis-0 items-center" }, 
+        clues[i]?.slice(0, n).map(x => m("div", { class: ["h-7 my-1 text-2xl text-gray-100", i ? 'ml-2 mr-4' : 'mr-2 ml-4'].join(' ') }, x))),
       // Input
       m("div", {
         class: "w-full text-center mt-2",
