@@ -343,17 +343,24 @@ var Help = {
   }
 }
 
+var alreadyGuessed = i => (word, wi) => {
+  gi = state.guesses.map(x => x[i].word).findIndex(g => g == word)
+  return gi == -1 || gi > wi
+}
 var App = {
   view: function () {
-    let cluepool = state.similar.map((words, i) => words.filter((word, wi) => {
-      gi = state.guesses.map(x => x[i].word).findIndex(g => g == word)
-      return gi == -1 || gi > wi
+    state.clues = state.similar.map((sim, i) => {
+      let clues = sim.slice(0,4).reverse()
+      let filtered = clues.filter(alreadyGuessed(i))
+      for (let i = (clues.length - filtered.length); i != 0; i -= 1) {
+        let next = sim.filter(alreadyGuessed(i)).find((x,i,s)=>s[i-1] == clues[0])
+        filtered.push(next)
+      }
+      return filtered.map((word, wi) => {
+        gi = state.guesses.map(x => x[i]).findIndex(g => g.class == "green")
+        return (gi > -1 && wi >= (gi + 1)) ? "" : word
+      })
     })
-    )
-    state.clues = cluepool.map((x, i) => x.slice(0, 4).reverse().map((word, wi) => {
-      gi = state.guesses.map(x => x[i]).findIndex(g => g.class == "green")
-      return (gi > -1 && wi >= (gi + 1)) ? "" : word
-    }))
     return m('div', { class: "flex flex-col h-full w-screen" }, [
       m(Nav),
       m('div', { 
