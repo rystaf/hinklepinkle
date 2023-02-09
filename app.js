@@ -110,6 +110,7 @@ keyPress = letter => {
 }
 
 submit = () => {
+  let start = fetch("https://sync.hink.pink/0").catch(Boolean)
   let guess = state.input.map(x => x.toLowerCase()).map((word, i) => {
     let w = { word: word || "-" }
     if (state.similar[i].includes(word)) {
@@ -126,6 +127,7 @@ submit = () => {
   state.focus = state.success[0] ? 1 : 0
   if (state.success.every(x => x)) {
     end()
+    start.then(()=>fetch("https://sync.hink.pink/1").catch(Boolean))
     return false
   }
   state.guesses.push(guess)
