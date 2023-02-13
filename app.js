@@ -25,7 +25,7 @@ api = async (...params) => {
   return json.filter(x => x.word.split(" ").length == 1
     && x.word.length > 2
     && x.tags
-    && Number(x.tags.find(x => x.slice(0, 2) == "f:").slice(2)) >= 1
+    && Number(x.tags.find(x => x.slice(0, 2) == "f:").slice(2)) >= 1.5
     && (["n", "N", "v", "adj", "adv", "results_type:primary_rel"].some(p => x.tags.includes(p)))
   ).map(word => ({ ...word, root: word.tags?.find(x => x.slice(0, 5) == "pron:").trim().slice(5).split(" ").reverse() }))
 }
