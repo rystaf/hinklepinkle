@@ -141,7 +141,9 @@ submit = () => {
 
 end = () => {
   state.focus = 3
-  localStorage.setItem("state", JSON.stringify({ hp: state.hp, similar: state.clues.map(x => x.slice(0, state.n).reverse()), n: state.n, guesses: state.guesses, success: state.success, seed }))
+  localStorage.setItem("state", JSON.stringify({ hp: state.hp, similar: state.clues.map(x => x.slice(0, state.n)
+    //.reverse()
+    ), n: state.n, guesses: state.guesses, success: state.success, seed }))
   setInterval(() => m.redraw(), 1000)
 }
 
@@ -350,7 +352,7 @@ var alreadyGuessed = i => (word, wi) => {
 var App = {
   view: function () {
     state.clues = state.similar.map((sim, i) => {
-      let clues = sim.slice(0,4).reverse()
+      let clues = sim.slice(0,4)//.reverse()
       let filtered = clues.filter(alreadyGuessed(i))
       for (let i = (clues.length - filtered.length); i != 0; i -= 1) {
         let next = sim.filter(alreadyGuessed(i)).find((x,i,s)=>s[i-1] == clues[0])
